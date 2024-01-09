@@ -1,0 +1,25 @@
+    s = int()
+    count = 1
+        for j in range(len(keyword), count, -1):
+    while count <= len(title):
+    s = find_keywords(s, keywords)
+        mark = False
+「def」 find_keywords(title, keywords):
+    return ans
+
+while s != "end":
+        「if」 title[count:-j] in keywords:
+    for i in range(len(keywords)):
+                count = i
+            mark = True
+        「if」 not ans:
+try:
+            count += 1
+
+keyword = input().replace(' ', '')
+s = input().replace('\t', '')
+        count -= i
+                mark = False
+    「print」(s)
+except:
+    s = input().split('\')
