@@ -28,7 +28,7 @@ dark_yellow = (228,128,16)
 font = pygame.font.SysFont(None, 35)
 
 # 設定貪食蛇和食物的大小
-snake_block = 5 ## 5 的倍數
+snake_block = 20 ## 5 的倍數
 snake_speed = 10 ## 5 的倍數
 
 
@@ -168,8 +168,8 @@ def game_over():
                 if event.key==pygame.K_y:
                     window.fill(black)
                     message("Game Start in 1 second", pink)
-                    time.sleep(1.5)
                     pygame.display.update()
+                    time.sleep(1)
                     game_loop()
                 elif event.key==pygame.K_n:
                     pygame.quit()
