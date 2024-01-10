@@ -4,8 +4,10 @@ import random
 
 pygame.init()
 
+
+BGM_music_path="./assets_/music/naruto.mp3"
 # 設定遊戲視窗大小和顏色
-width, height = 400, 300
+width, height = 600, 600
 window = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Greedy Snake Game")
 
@@ -25,8 +27,8 @@ dark_yellow = (228,128,16)
 font = pygame.font.SysFont(None, 35)
 
 # 設定貪食蛇和食物的大小
-snake_block = 20
-snake_speed = 15
+snake_block = 10
+snake_speed = 10
 FPS=15
 
 
@@ -50,16 +52,33 @@ class Snake:
             self.y -= self.block
         elif self.direction == 'DOWN':
             self.y += self.block
-
+        if self.x>width:
+            self.x=0
+        elif self.x<0:
+            self.x=width
+        if self.y>height:
+            self.y=0
+        elif self.y<0:
+            self.y=height
     def grow(self):
         self.size += 1
-
-    def is_collision(self):
-        return self.x >= width or self.x < 0 or self.y >= height or self.y < 0
+        self.speed+=0.5
+        
+    def is_collision(self): ## 調整 Game Over State 咬到自己 Game Fail
+        # if self.x >= width or self.x < 0 or self.y >= height or self.y < 0:
+        if [self.x ,self.y] in self.body:
+            return True 
+        else:
+            return False
 
     def draw(self):
-        for segment in self.body:
-            pygame.draw.rect(window, green, [segment[0], segment[1], self.block, self.block])
+        # print(self.x,self.y)
+        # print(self.body)
+        for idx,segment in enumerate(self.body):
+            if idx==len(self.body)-1:
+                pygame.draw.rect(window, green_blue, [segment[0], segment[1], self.block, self.block])
+            else:
+                pygame.draw.rect(window, green, [segment[0], segment[1], self.block, self.block])
 
 # 定義食物類別
 class Food:
@@ -67,13 +86,14 @@ class Food:
         self.block = snake_block
         self.x = round(random.randrange(0, width - self.block) / 20.0) * 20.0
         self.y = round(random.randrange(0, height - self.block) / 20.0) * 20.0
-
+        self.color_list=[red,white,yellow,pink,dark_yellow]
+        self.food_color=self.color_list[random.randint(0,len(self.color_list)-1)]
     def respawn(self):
         self.x = round(random.randrange(0, width - self.block) / 20.0) * 20.0
         self.y = round(random.randrange(0, height - self.block) / 20.0) * 20.0
 
     def draw(self):
-        pygame.draw.rect(window, red, [self.x, self.y, self.block, self.block])
+        pygame.draw.rect(window, self.food_color, [self.x, self.y, self.block, self.block])
 
 # 顯示得分
 def display_score(score):
@@ -84,7 +104,8 @@ def display_score(score):
 def game_loop():
     snake = Snake()
     food = Food()
-
+    soundObj = pygame.mixer.Sound(BGM_music_path)
+    soundObj.play()
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -102,18 +123,21 @@ def game_loop():
 
         snake.move()
 
-        if snake.x == food.x and snake.y == food.y:
+        if snake.x == food.x and snake.y == food.y: ## 吃到食物
             food.respawn()
             snake.grow()
 
+
+
+        if snake.is_collision():
+            soundObj.stop()
+            game_over()
+            
         window.fill(black)
         snake.body.append([snake.x, snake.y])
         if len(snake.body) > snake.size:
             del snake.body[0]
-
-        if snake.is_collision():
-            game_over()
-        
+            
         snake.draw()
         food.draw()
         display_score(snake.size - 1)
@@ -124,29 +148,32 @@ def game_loop():
 # 遊戲結束畫面
 def game_over():
     window.fill(black)
-    message("Game Over", red)
+    message("Game Over", pink)
     pygame.display.update()
-    time.sleep(3)
+    time.sleep(1.5)
+    window.fill(black)
+    message("Wanna Play Again ? (y/n)", pink)
+    pygame.display.update()
     while True:
-        message("Wanna Play Again ? (y/n)", red)
-        pygame.display.update()
         for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    quit()
-                elif event.key==pygame.K_y:
-                    message("Game Start in 3 second", pink)
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key==pygame.K_y:
+                    window.fill(black)
+                    message("Game Start in 1 second", pink)
+                    time.sleep(1.5)
                     pygame.display.update()
                     game_loop()
-                else:
+                elif event.key==pygame.K_n:
                     pygame.quit()
                     quit()
 
 # 顯示訊息
 def message(msg, color):
     text = font.render(msg, True, color)
-    window.blit(text, [width / 2, height / 2])
+    window.blit(text, [0, height / 2])
 
 if __name__ == "__main__":
     game_loop()
