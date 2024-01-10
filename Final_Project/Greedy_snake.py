@@ -1,12 +1,19 @@
 import pygame
-import time
+import time,os
 import random
 
 pygame.init()
 
 
-BGM_music_path="./assets_/music/naruto.mp3"
-Fail_music_path="./assets_/music/Fail.mp3"
+if os.name=="posix":
+    BGM_music_path="./assets_/music/naruto.mp3"
+    Fail_music_path="./assets_/music/Fail.mp3"
+elif os.name=="nt":
+    BGM_music_path=os.getcwd()+r"\assets_\music\naruto.mp3"
+    Fail_music_path=os.getcwd()+r"\assets_\music\Fail.mp3"
+else:
+    print(f"os.name not in the valid type")
+    os._exit(0)
 # 設定遊戲視窗大小和顏色
 width, height = 600, 600
 window = pygame.display.set_mode((width, height))
