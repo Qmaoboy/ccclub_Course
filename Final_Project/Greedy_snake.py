@@ -6,6 +6,7 @@ pygame.init()
 
 
 BGM_music_path="./assets_/music/naruto.mp3"
+Fail_music_path="./assets_/music/Fail.mp3"
 # 設定遊戲視窗大小和顏色
 width, height = 600, 600
 window = pygame.display.set_mode((width, height))
@@ -104,8 +105,10 @@ def display_score(score):
 def game_loop():
     snake = Snake()
     food = Food()
-    soundObj = pygame.mixer.Sound(BGM_music_path)
-    soundObj.play()
+    soundObj1 = pygame.mixer.Sound(BGM_music_path)
+    soundObj1.play()
+    soundObj2 = pygame.mixer.Sound(Fail_music_path)
+    
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -130,8 +133,10 @@ def game_loop():
 
 
         if snake.is_collision():
-            soundObj.stop()
+            soundObj1.stop()
+            soundObj2.play()
             game_over()
+            
             
         window.fill(black)
         snake.body.append([snake.x, snake.y])
