@@ -28,9 +28,8 @@ dark_yellow = (228,128,16)
 font = pygame.font.SysFont(None, 35)
 
 # 設定貪食蛇和食物的大小
-snake_block = 10
-snake_speed = 10
-FPS=15
+snake_block = 5 ## 5 的倍數
+snake_speed = 10 ## 5 的倍數
 
 
 # 定義貪食蛇類別
@@ -53,14 +52,14 @@ class Snake:
             self.y -= self.block
         elif self.direction == 'DOWN':
             self.y += self.block
-        if self.x>width:
+        if self.x>=width:
             self.x=0
         elif self.x<0:
-            self.x=width
-        if self.y>height:
+            self.x=width-self.block
+        if self.y>=height:
             self.y=0
         elif self.y<0:
-            self.y=height
+            self.y=height-self.block
     def grow(self):
         self.size += 1
         self.speed+=0.5
@@ -107,8 +106,9 @@ def game_loop():
     food = Food()
     soundObj1 = pygame.mixer.Sound(BGM_music_path)
     soundObj1.play()
+    soundObj1.set_volume(0.7)
     soundObj2 = pygame.mixer.Sound(Fail_music_path)
-    
+    soundObj2.set_volume(0.5)
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -148,7 +148,7 @@ def game_loop():
         display_score(snake.size - 1)
 
         pygame.display.update()
-        pygame.time.Clock().tick(snake.speed)
+        pygame.time.Clock().tick(snake_speed)
 
 # 遊戲結束畫面
 def game_over():
