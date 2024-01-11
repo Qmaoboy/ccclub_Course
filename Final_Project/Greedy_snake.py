@@ -37,11 +37,84 @@ font = pygame.font.SysFont(None, 35)
 # 設定貪食蛇和食物的大小
 snake_block = 20 ## 5 的倍數
 snake_speed = 10 ## 5 的倍數
+hardlevel=50
 
+class obstacle():
+    def __init__(self,hardlevel):
+        self.ob=[]
+        self.hardlevel=hardlevel
+        self.block=snake_block
+        self.Getobstacle()
+        
+    def Getobstacle(self):
+        # self.x = round(random.randrange(0, width - self.block,self.block)/float(self.block))*float(self.block)
+        self.x=round((width//4)/float(self.block))*float(self.block)
+        
+        self.y = round(random.randrange(0, height - self.block,self.block)/float(self.block))*float(self.block)
+ 
+        # self.ob.append([self.x,self.y])
+        
+        # for i in range(self.hardlevel):
+        #     dir=random.choice(["R","L","U","D"])
+        #     if dir=="R":
+        #         self.x-=self.block
+        #         self.ob.append([self.x,self.y])
+        #     elif dir=="L":
+        #         self.x+=self.block
+        #         self.ob.append([self.x,self.y])
+        #     elif dir=="U":
+        #         self.y-=-self.block
+        #         self.ob.append([self.x,self.y])
+        #     elif dir=="D":
+        #         self.y+=-self.block
+        #         self.ob.append([self.x,self.y])
+        # for i in range(5):
+        #     self.ob.append([(self.x+i*self.block)%width,200])
+        #     self.ob.append([(self.x+(self.distance+i)*self.block)%width,200])
+        #     self.ob.append([(self.x+i*self.block)%width,400])
+        #     self.ob.append([(self.x+(self.distance+i)*self.block)%width,400])
+        # for i in range(10):
+        #     self.ob.append([self.x,(200+i*self.block)%height])
+        #     self.ob.append([(self.x+(self.distance+5)*self.block)%width,(200+i*self.block)%height])
+        self.draw_obstacle_line([200,200],[400,200])
+        self.draw_obstacle_line([200,200],[200,240])
+        self.draw_obstacle_line([400,200],[400,240])
+        
+        self.draw_obstacle_line([200,360],[200,400])
+        self.draw_obstacle_line([200,400],[400,400])
+        self.draw_obstacle_line([400,360],[400,400])
+        # self.draw_obstacle_line([200,200],[200,400])
+        
+    def rounding(self,idx):
+        return round(idx/int(self.block))*int(self.block)
+    
+    def Getxfunction(self,x,x_s,y_s):
+        return self.ratio*(x-x_s)+y_s
+    
+    def Getyfunction(self,y,x_s,y_s):
+        return self.ratio*(y-y_s)+x_s
+    
+    def draw_obstacle_line(self,start,end):
+        x_s,y_s=list(map(self.rounding,start))
+        x_e,y_e=list(map(self.rounding,end))
+        if x_s!=x_e:
+            self.ratio=(y_s-y_e)/(x_s-x_e)
+            for i in range(x_s,x_e,self.block):
+                self.ob.append([i,self.rounding(self.Getxfunction(i,x_s,y_s))])
+        else:
+            self.ratio=(x_s-x_e)/(y_s-y_e)
+            for i in range(y_s,y_e,self.block):
+                self.ob.append([self.rounding(self.Getyfunction(i,x_s,y_s)),i]) 
+        self.ob.append([x_e,y_e]) 
+            
+    def draw(self):
+        for idx,segment in enumerate(self.ob):
+                pygame.draw.rect(window, red, [segment[0], segment[1], self.block, self.block])
 
+    
 # 定義貪食蛇類別
 class Snake:
-    def __init__(self):
+    def __init__(self,obs):
         self.size = 1
         self.block = snake_block
         self.speed = snake_speed
@@ -49,7 +122,7 @@ class Snake:
         self.x = width / 2
         self.y = height / 2
         self.body = []
-
+        self.obstacle=obs
     def move(self):
         if self.direction == 'RIGHT':
             self.x += self.block
@@ -73,14 +146,12 @@ class Snake:
         
     def is_collision(self): ## 調整 Game Over State 咬到自己 Game Fail
         # if self.x >= width or self.x < 0 or self.y >= height or self.y < 0:
-        if [self.x ,self.y] in self.body:
+        if [self.x ,self.y] in self.body or [self.x ,self.y] in self.obstacle:
             return True 
         else:
             return False
 
     def draw(self):
-        # print(self.x,self.y)
-        # print(self.body)
         for idx,segment in enumerate(self.body):
             if idx==len(self.body)-1:
                 pygame.draw.rect(window, green_blue, [segment[0], segment[1], self.block, self.block])
@@ -89,15 +160,22 @@ class Snake:
 
 # 定義食物類別
 class Food:
-    def __init__(self):
+    def __init__(self,obs):
         self.block = snake_block
-        self.x = round(random.randrange(0, width - self.block) / 20.0) * 20.0
-        self.y = round(random.randrange(0, height - self.block) / 20.0) * 20.0
-        self.color_list=[red,white,yellow,pink,dark_yellow]
+        self.obstacle=obs
+        self.x_obs=[i for (i,j) in self.obstacle]
+        self.y_obs=[j for (i,j) in self.obstacle]
+        self.x_space=[a for a in range(0, width - self.block,self.block) if a not in self.x_obs]
+        self.y_space=[a for a in range(0, height - self.block,self.block) if a not in self.y_obs]
+        self.x = round(random.choice(self.x_space)/float(self.block)) * float(self.block)
+        self.y = round(random.choice(self.y_space) / float(self.block)) * float(self.block)
+        self.color_list=[white,yellow,pink,dark_yellow]
         self.food_color=self.color_list[random.randint(0,len(self.color_list)-1)]
+        
+        
     def respawn(self):
-        self.x = round(random.randrange(0, width - self.block) / 20.0) * 20.0
-        self.y = round(random.randrange(0, height - self.block) / 20.0) * 20.0
+        self.x = round(random.choice(self.x_space) / float(self.block)) * float(self.block)
+        self.y = round(random.choice(self.y_space) / float(self.block)) * float(self.block)
 
     def draw(self):
         pygame.draw.rect(window, self.food_color, [self.x, self.y, self.block, self.block])
@@ -109,8 +187,10 @@ def display_score(score):
 
 # 主遊戲迴圈
 def game_loop():
-    snake = Snake()
-    food = Food()
+    obs=obstacle(hardlevel)
+    print(obs.ob)
+    snake = Snake(obs.ob)
+    food = Food(obs.ob)
     soundObj1 = pygame.mixer.Sound(BGM_music_path)
     soundObj1.play()
     soundObj1.set_volume(0.7)
@@ -149,9 +229,11 @@ def game_loop():
         snake.body.append([snake.x, snake.y])
         if len(snake.body) > snake.size:
             del snake.body[0]
-            
+    
         snake.draw()
+        obs.draw()
         food.draw()
+        
         display_score(snake.size - 1)
 
         pygame.display.update()
