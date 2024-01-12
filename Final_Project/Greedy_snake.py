@@ -237,7 +237,7 @@ def game_loop():
         display_score(snake.size - 1)
 
         pygame.display.update()
-        pygame.time.Clock().tick(snake_speed)
+        pygame.time.Clock().tick(snake.speed)
 
 # 遊戲結束畫面
 def game_over():
