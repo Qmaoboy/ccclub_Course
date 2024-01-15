@@ -45,15 +45,15 @@ class obstacle():
         self.hardlevel=hardlevel
         self.block=snake_block
         self.Getobstacle()
-        
+
     def Getobstacle(self):
         # self.x = round(random.randrange(0, width - self.block,self.block)/float(self.block))*float(self.block)
         self.x=round((width//4)/float(self.block))*float(self.block)
-        
+
         self.y = round(random.randrange(0, height - self.block,self.block)/float(self.block))*float(self.block)
- 
+
         # self.ob.append([self.x,self.y])
-        
+
         # for i in range(self.hardlevel):
         #     dir=random.choice(["R","L","U","D"])
         #     if dir=="R":
@@ -79,21 +79,21 @@ class obstacle():
         self.draw_obstacle_line([200,200],[400,200])
         self.draw_obstacle_line([200,200],[200,240])
         self.draw_obstacle_line([400,200],[400,240])
-        
+
         self.draw_obstacle_line([200,360],[200,400])
         self.draw_obstacle_line([200,400],[400,400])
         self.draw_obstacle_line([400,360],[400,400])
         # self.draw_obstacle_line([200,200],[200,400])
-        
+
     def rounding(self,idx):
         return round(idx/int(self.block))*int(self.block)
-    
+
     def Getxfunction(self,x,x_s,y_s):
         return self.ratio*(x-x_s)+y_s
-    
+
     def Getyfunction(self,y,x_s,y_s):
         return self.ratio*(y-y_s)+x_s
-    
+
     def draw_obstacle_line(self,start,end):
         x_s,y_s=list(map(self.rounding,start))
         x_e,y_e=list(map(self.rounding,end))
@@ -104,14 +104,14 @@ class obstacle():
         else:
             self.ratio=(x_s-x_e)/(y_s-y_e)
             for i in range(y_s,y_e,self.block):
-                self.ob.append([self.rounding(self.Getyfunction(i,x_s,y_s)),i]) 
-        self.ob.append([x_e,y_e]) 
-            
+                self.ob.append([self.rounding(self.Getyfunction(i,x_s,y_s)),i])
+        self.ob.append([x_e,y_e])
+
     def draw(self):
         for idx,segment in enumerate(self.ob):
                 pygame.draw.rect(window, red, [segment[0], segment[1], self.block, self.block])
 
-    
+
 # 定義貪食蛇類別
 class Snake:
     def __init__(self,obs):
@@ -143,11 +143,11 @@ class Snake:
     def grow(self):
         self.size += 1
         self.speed+=0.5
-        
+
     def is_collision(self): ## 調整 Game Over State 咬到自己 Game Fail
         # if self.x >= width or self.x < 0 or self.y >= height or self.y < 0:
         if [self.x ,self.y] in self.body or [self.x ,self.y] in self.obstacle:
-            return True 
+            return True
         else:
             return False
 
@@ -171,8 +171,8 @@ class Food:
         self.y = round(random.choice(self.y_space) / float(self.block)) * float(self.block)
         self.color_list=[white,yellow,pink,dark_yellow]
         self.food_color=self.color_list[random.randint(0,len(self.color_list)-1)]
-        
-        
+
+
     def respawn(self):
         self.x = round(random.choice(self.x_space) / float(self.block)) * float(self.block)
         self.y = round(random.choice(self.y_space) / float(self.block)) * float(self.block)
@@ -185,10 +185,10 @@ def display_score(score):
     value = font.render("Your Score: " + str(score), True, white)
     window.blit(value, [0, 0])
 
+
 # 主遊戲迴圈
 def game_loop():
     obs=obstacle(hardlevel)
-    print(obs.ob)
     snake = Snake(obs.ob)
     food = Food(obs.ob)
     soundObj1 = pygame.mixer.Sound(BGM_music_path)
@@ -216,24 +216,21 @@ def game_loop():
         if snake.x == food.x and snake.y == food.y: ## 吃到食物
             food.respawn()
             snake.grow()
-
-
-
         if snake.is_collision():
             soundObj1.stop()
             soundObj2.play()
             game_over()
-            
-            
+
+
         window.fill(black)
         snake.body.append([snake.x, snake.y])
         if len(snake.body) > snake.size:
             del snake.body[0]
-    
+
         snake.draw()
         obs.draw()
         food.draw()
-        
+
         display_score(snake.size - 1)
 
         pygame.display.update()
